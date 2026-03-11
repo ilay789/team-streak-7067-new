@@ -9,25 +9,10 @@
 
     <style>
         :root { --orange: #ff6600; --bg: #000; }
-        body { background-color: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; text-align: center; }
+        body { background-color: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; text-align: center; display: flex; flex-direction: column; min-height: 100vh; }
         
-        .header-section { margin-top: 50px; margin-bottom: 40px; }
-        h1 { color: var(--orange); text-shadow: 0 0 15px rgba(255, 102, 0, 0.5); font-size: 2.8rem; margin-bottom: 10px; }
+        h1 { color: var(--orange); text-shadow: 0 0 15px rgba(255, 102, 0, 0.5); font-size: 2.8rem; margin-top: 40px; }
         
-        /* תיבת ההסבר החדשה */
-        .page-description {
-            background: rgba(255, 102, 0, 0.05);
-            border: 1px solid #333;
-            border-right: 4px solid var(--orange);
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto 40px auto;
-            border-radius: 8px;
-            text-align: right;
-            line-height: 1.6;
-        }
-        .page-description p { margin: 0; font-size: 1.1rem; color: #ddd; }
-
         .selector { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 30px; }
         
         .year-btn {
@@ -38,34 +23,38 @@
 
         .card {
             background: #0a0a0a; border: 1px solid #333; border-top: 4px solid var(--orange);
-            border-radius: 12px; padding: 25px; width: 90%; max-width: 550px; margin: 0 auto;
+            border-radius: 12px; padding: 25px; width: 90%; max-width: 550px; margin: 0 auto 50px auto;
             display: none; box-shadow: 0 10px 40px rgba(0,0,0,0.9); text-align: right;
         }
         .card h2 { color: var(--orange); margin-top: 0; font-size: 1.8rem; }
+        
+        /* תיבת ההסבר בתחתית העמוד */
+        .bottom-description {
+            background: rgba(255, 102, 0, 0.05);
+            border: 1px solid #222;
+            border-top: 2px solid var(--orange);
+            padding: 30px;
+            max-width: 850px;
+            margin: auto auto 40px auto; /* דוחף לתחתית */
+            border-radius: 12px;
+            text-align: right;
+            line-height: 1.8;
+        }
+        .bottom-description h3 { color: var(--orange); margin-top: 0; }
+        .bottom-description p { color: #ccc; font-size: 1.1rem; margin: 0; }
+
         .video-btn {
             display: inline-block; margin-top: 20px; padding: 12px 25px;
             background: var(--orange); color: black; text-decoration: none;
-            font-weight: bold; border-radius: 6px; transition: 0.3s;
+            font-weight: bold; border-radius: 6px;
         }
-        .video-btn:hover { filter: brightness(1.2); transform: translateY(-2px); }
     </style>
 </head>
 <body>
 
     <a href="index.html" style="color: #666; text-decoration: none; float: right; font-weight: bold;">🏠 חזרה לבית</a>
     
-    <div class="header-section">
-        <h1>היסטוריית עונות 🗓️</h1>
-    </div>
-
-    <div class="page-description">
-        <p>
-            ברוכים הבאים לארכיון של <strong>Team Streak #7067</strong>. 
-            כאן תוכלו לעקוב אחרי המסע שלנו מאז הקמת הקבוצה בשנת 2018. בכל שנה אנחנו מתמודדים עם אתגר חדש, בונים רובוט מאפס ולומדים לעבוד כצוות הנדסי מקצועי.
-            <br><br>
-            בחרו שנה מהרשימה למטה כדי לראות את שם האתגר של אותה עונה, את הרובוט שבנינו וסרטון המציג את המשחק.
-        </p>
-    </div>
+    <h1>היסטוריית עונות 🗓️</h1>
 
     <div id="year-selector" class="selector"></div>
 
@@ -74,13 +63,24 @@
         <div id="card-content"></div>
     </div>
 
+    <div class="bottom-description">
+        <h3>על דף היסטוריית העונות שלנו</h3>
+        <p>
+            דף זה מרכז את כל שנות הפעילות של קבוצת <strong>Team Streak #7067</strong> מאז הקמתה בשנת 2018. 
+            עבורנו, כל שנה המוצגת כאן היא לא רק תחרות, אלא תהליך למידה הנדסי מורכב. 
+            מכאן תוכלו לראות איך התפתחנו מרמת התכנון, דרך המכניקה ועד לביצועים על המגרש. 
+            <br><br>
+            אנחנו משתמשים בנתונים הללו כדי ללמוד מטעויות העבר, לשמר ידע מקצועי ולהציג לדורות הבאים של הקבוצה את המורשת שבנינו. 
+            הרובוטים שאתם רואים כאן הם תוצאה של אלפי שעות עבודה בסדנה, תכנות לילות לבנים ושיתוף פעולה בין כלל מחלקות הקבוצה.
+        </p>
+    </div>
+
     <script>
         async function init() {
             const selector = document.getElementById('year-selector');
             const card = document.getElementById('info-card');
 
             try {
-                // משיכת האקסל עם מניעת Cache
                 const response = await fetch('seasons.xlsx?v=' + Date.now());
                 const arrayBuffer = await response.arrayBuffer();
                 const data = new Uint8Array(arrayBuffer);
@@ -98,11 +98,10 @@
                         card.style.display = 'block';
                         document.getElementById('card-title').innerText = "עונת " + item.Year;
                         document.getElementById('card-content').innerHTML = `
-                            <p style="font-size: 1.2rem;"><strong>🎯 אתגר:</strong> ${item.Challenge || 'מידע בקרוב'}</p>
-                            <p style="font-size: 1.2rem;"><strong>🤖 רובוט:</strong> ${item.Robot || 'מידע בקרוב'}</p>
+                            <p><strong>🎯 אתגר:</strong> ${item.Challenge || 'מידע בקרוב'}</p>
+                            <p><strong>🤖 רובוט:</strong> ${item.Robot || 'מידע בקרוב'}</p>
                             ${item.Video ? `<a href="${item.Video}" target="_blank" class="video-btn">🎬 לצפייה בסרטון האתגר</a>` : ''}
                         `;
-                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     };
                     selector.appendChild(btn);
                 });
