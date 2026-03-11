@@ -1,94 +1,56 @@
-<!DOCTYPE html>
-<html lang="he" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>עונות | Team Streak 7067</title>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <style>
-        body { background-color: #000; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; text-align: center; }
-        .container { max-width: 900px; margin: 80px auto; }
-        h1 { color: #ff6600; font-size: 2.5em; }
-        .year-selector { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 30px 0; min-height: 50px; }
-        .year-btn { background: #111; color: #ff6600; border: 2px solid #ff6600; padding: 10px 20px; cursor: pointer; border-radius: 8px; font-weight: bold; transition: 0.3s; }
-        .year-btn.active { background: #ff6600; color: black; }
-        .info-card { background: #0a0a0a; border: 2px solid #ff6600; border-radius: 20px; padding: 30px; text-align: right; min-height: 200px; }
-        .error-msg { color: #ff4444; background: #220000; padding: 15px; border-radius: 10px; border: 1px solid red; margin-bottom: 20px; display: none; }
-        .home-btn { position: fixed; top: 20px; right: 20px; background: #ff6600; color: black; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; }
-    </style>
-</head>
-<body>
+async function init() {
+    const errorBox = document.getElementById('error-box');
+    const selector = document.getElementById('year-selector');
 
-    <a href="index.html" class="home-btn">🏠 חזרה לבית</a>
-
-    <div class="container">
-        <h1>🚀 עונות ורובוטים</h1>
+    try {
+        // הוספת פרמטר למניעת שמירה במטמון (Cache) כדי שתמיד יטען את הקובץ הכי חדש
+        const response = await fetch('seasons.xlsx?v=' + Math.random());
         
-        <div id="error-box" class="error-msg"></div>
-
-        <div class="year-selector" id="year-selector">
-            <p id="loading-text">מחפש את נתוני האקסל... 🔎</p>
-        </div>
-
-        <div class="info-card" id="info-card">
-            <h2 id="card-title">בחר עונה מהרשימה</h2>
-            <div id="card-content">
-                <p>המידע ייטען באופן אוטומטי מקובץ האקסל של הקבוצה.</p>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        async function init() {
-            const errorBox = document.getElementById('error-box');
-            const selector = document.getElementById('year-selector');
-
-            try {
-                // שלב 1: ניסיון למשוך את הקובץ
-                const response = await fetch('seasons.xlsx');
-                
-                if (!response.ok) {
-                    throw new Error(`לא הצלחתי למצוא את הקובץ seasons.xlsx. (שגיאה ${response.status})`);
-                }
-
-                // שלב 2: קריאת הנתונים
-                const arrayBuffer = await response.arrayBuffer();
-                const data = new Uint8Array(arrayBuffer);
-                const workbook = XLSX.read(data, { type: 'array' });
-                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-                const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
-                if (jsonData.length === 0) {
-                    throw new Error("קובץ האקסל נמצא, אבל הוא נראה ריק.");
-                }
-
-                // שלב 3: יצירת כפתורים
-                selector.innerHTML = '';
-                jsonData.sort((a, b) => b.Year - a.Year).forEach(item => {
-                    const btn = document.createElement('button');
-                    btn.innerText = item.Year;
-                    btn.className = 'year-btn';
-                    btn.onclick = () => {
-                        document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-                        document.getElementById('card-title').innerText = `עונת ${item.Year}`;
-                        document.getElementById('card-content').innerHTML = `
-                            <p><strong>האתגר:</strong> ${item.Challenge}</p>
-                            <p><strong>הרובוט:</strong> ${item.Robot}</p>
-                            <a href="${item.Video}" target="_blank" style="color:#ff6600; font-weight:bold;">🎬 לצפייה בסרטון האתגר</a>
-                        `;
-                    };
-                    selector.appendChild(btn);
-                });
-
-            } catch (err) {
-                document.getElementById('loading-text').style.display = 'none';
-                errorBox.style.display = 'block';
-                errorBox.innerHTML = `⚠️ <strong>בעיה בטעינה:</strong> ${err.message}<br><small>וודא שהקובץ seasons.xlsx נמצא באותה תיקייה בגיטהאב.</small>`;
-            }
+        if (!response.ok) {
+            throw new Error(`הקובץ seasons.xlsx לא נמצא בשרת.`);
         }
 
-        window.onload = init;
-    </script>
-</body>
-</html>
+        const arrayBuffer = await response.arrayBuffer();
+        const data = new Uint8Array(arrayBuffer);
+        const workbook = XLSX.read(data, { type: 'array' });
+        
+        // קריאת הגיליון הראשון שבו יש נתונים
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        
+        // הפיכה ל-JSON
+        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+        console.log("נתונים שנקראו:", jsonData);
+
+        if (!jsonData || jsonData.length === 0) {
+            throw new Error("קובץ האקסל נטען, אבל לא נמצאו בו שורות של נתונים. וודא שהכותרות בשורה הראשונה הן: Year, Challenge, Robot, Video.");
+        }
+
+        selector.innerHTML = '';
+        jsonData.sort((a, b) => b.Year - a.Year).forEach(item => {
+            if(!item.Year) return; // דילוג על שורות ריקות
+            const btn = document.createElement('button');
+            btn.innerText = item.Year;
+            btn.className = 'year-btn';
+            btn.onclick = () => {
+                document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('card-title').innerText = `עונת ${item.Year}`;
+                document.getElementById('card-content').innerHTML = `
+                    <p><strong>האתגר:</strong> ${item.Challenge || 'אין מידע'}</p>
+                    <p><strong>הרובוט:</strong> ${item.Robot || 'אין מידע'}</p>
+                    ${item.Video ? `<a href="${item.Video}" target="_blank" style="color:#ff6600; font-weight:bold; text-decoration:none; border: 1px solid #ff6600; padding: 5px 10px; border-radius: 5px; display: inline-block; margin-top: 10px;">🎬 לצפייה בסרטון האתגר</a>` : ''}
+                `;
+            };
+            selector.appendChild(btn);
+        });
+
+    } catch (err) {
+        document.getElementById('loading-text').style.display = 'none';
+        errorBox.style.display = 'block';
+        errorBox.innerHTML = `⚠️ <strong>בעיה בטעינה:</strong> ${err.message}`;
+        console.error("Full Error:", err);
+    }
+}
+window.onload = init;
