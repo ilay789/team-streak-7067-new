@@ -1,56 +1,196 @@
-async function init() {
-    const errorBox = document.getElementById('error-box');
-    const selector = document.getElementById('year-selector');
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>היסטוריית עונות | Team Streak 7067</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-    try {
-        // הוספת פרמטר למניעת שמירה במטמון (Cache) כדי שתמיד יטען את הקובץ הכי חדש
-        const response = await fetch('seasons.xlsx?v=' + Math.random());
-        
-        if (!response.ok) {
-            throw new Error(`הקובץ seasons.xlsx לא נמצא בשרת.`);
+    <style>
+        :root {
+            --streak-orange: #ff6600;
+            --dark-bg: #0a0a0a;
+            --card-bg: #161616;
         }
 
-        const arrayBuffer = await response.arrayBuffer();
-        const data = new Uint8Array(arrayBuffer);
-        const workbook = XLSX.read(data, { type: 'array' });
-        
-        // קריאת הגיליון הראשון שבו יש נתונים
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
-        
-        // הפיכה ל-JSON
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
-        console.log("נתונים שנקראו:", jsonData);
-
-        if (!jsonData || jsonData.length === 0) {
-            throw new Error("קובץ האקסל נטען, אבל לא נמצאו בו שורות של נתונים. וודא שהכותרות בשורה הראשונה הן: Year, Challenge, Robot, Video.");
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark-bg);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        selector.innerHTML = '';
-        jsonData.sort((a, b) => b.Year - a.Year).forEach(item => {
-            if(!item.Year) return; // דילוג על שורות ריקות
-            const btn = document.createElement('button');
-            btn.innerText = item.Year;
-            btn.className = 'year-btn';
-            btn.onclick = () => {
-                document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                document.getElementById('card-title').innerText = `עונת ${item.Year}`;
-                document.getElementById('card-content').innerHTML = `
-                    <p><strong>האתגר:</strong> ${item.Challenge || 'אין מידע'}</p>
-                    <p><strong>הרובוט:</strong> ${item.Robot || 'אין מידע'}</p>
-                    ${item.Video ? `<a href="${item.Video}" target="_blank" style="color:#ff6600; font-weight:bold; text-decoration:none; border: 1px solid #ff6600; padding: 5px 10px; border-radius: 5px; display: inline-block; margin-top: 10px;">🎬 לצפייה בסרטון האתגר</a>` : ''}
-                `;
-            };
-            selector.appendChild(btn);
-        });
+        h1 {
+            color: var(--streak-orange);
+            text-shadow: 0 0 10px rgba(255, 102, 0, 0.3);
+            margin-bottom: 30px;
+        }
 
-    } catch (err) {
-        document.getElementById('loading-text').style.display = 'none';
-        errorBox.style.display = 'block';
-        errorBox.innerHTML = `⚠️ <strong>בעיה בטעינה:</strong> ${err.message}`;
-        console.error("Full Error:", err);
-    }
-}
-window.onload = init;
+        /* עיצוב כפתורי השנים */
+        .selector-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 40px;
+            max-width: 800px;
+        }
+
+        .year-btn {
+            background: transparent;
+            color: var(--streak-orange);
+            border: 2px solid var(--streak-orange);
+            padding: 12px 25px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .year-btn:hover, .year-btn.active {
+            background: var(--streak-orange);
+            color: black;
+            box-shadow: 0 0 15px var(--streak-orange);
+        }
+
+        /* כרטיס המידע */
+        .info-card {
+            background-color: var(--card-bg);
+            border: 1px solid #333;
+            border-right: 5px solid var(--streak-orange);
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 600px;
+            min-height: 200px;
+            display: none; /* יופיע רק כשנלחץ על שנה */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .info-card h2 {
+            margin-top: 0;
+            color: var(--streak-orange);
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+
+        .info-card p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .video-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: var(--streak-orange);
+            color: black;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        .video-link:hover {
+            filter: brightness(1.2);
+        }
+
+        /* הודעות שגיאה וטעינה */
+        #status-msg { margin: 20px; color: #888; }
+        .error { color: #ff4444; border: 1px solid #ff4444; padding: 15px; border-radius: 10px; background: rgba(255,0,0,0.1); }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" style="color: #666; text-decoration: none; align-self: flex-start; margin-bottom: 20px;">➔ חזרה למסך הבית</a>
+
+    <h1>🗓️ היסטוריית עונות - Team Streak</h1>
+
+    <div id="status-msg">מחפש את נתוני העונות...</div>
+
+    <div id="year-selector" class="selector-container"></div>
+
+    <div id="info-card" class="info-card">
+        <h2 id="card-title">עונה</h2>
+        <div id="card-content"></div>
+    </div>
+
+    <script>
+        async function loadSeasons() {
+            const status = document.getElementById('status-msg');
+            const selector = document.getElementById('year-selector');
+            const card = document.getElementById('info-card');
+
+            try {
+                // משיכת קובץ האקסל (הוספנו מספר רנדומלי כדי למנוע טעינה של גרסה ישנה מהזיכרון)
+                const response = await fetch('seasons.xlsx?v=' + Math.random());
+                
+                if (!response.ok) {
+                    throw new Error("קובץ ה-seasons.xlsx לא נמצא בתיקייה הראשית של האתר.");
+                }
+
+                const data = await response.arrayBuffer();
+                const workbook = XLSX.read(data, { type: 'array' });
+                
+                // לקיחת הגיליון הראשון
+                const sheetName = workbook.SheetNames[0];
+                const sheet = workbook.Sheets[sheetName];
+                
+                // המרה לפורמט שהקוד מבין
+                const rows = XLSX.utils.sheet_to_json(sheet);
+
+                if (rows.length === 0) {
+                    throw new Error("הקובץ נמצא אבל הוא ריק.");
+                }
+
+                status.style.display = 'none';
+
+                // מיון השנים מהחדשה לישנה
+                rows.sort((a, b) => b.Year - a.Year);
+
+                rows.forEach(row => {
+                    if (!row.Year) return;
+
+                    const btn = document.createElement('button');
+                    btn.className = 'year-btn';
+                    btn.innerText = row.Year;
+                    
+                    btn.onclick = () => {
+                        // עיצוב כפתור פעיל
+                        document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+
+                        // עדכון הכרטיס
+                        card.style.display = 'block';
+                        document.getElementById('card-title').innerText = `עונת ${row.Year}`;
+                        document.getElementById('card-content').innerHTML = `
+                            <p><strong>🎯 האתגר:</strong> ${row.Challenge || 'אין מידע'}</p>
+                            <p><strong>🤖 הרובוט:</strong> ${row.Robot || 'אין מידע'}</p>
+                            ${row.Video ? `<a href="${row.Video}" target="_blank" class="video-link">🎬 לצפייה בסרטון האתגר</a>` : ''}
+                        `;
+                        
+                        // גלילה חלקה לכרטיס (נוח בטלפון)
+                        card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    };
+
+                    selector.appendChild(btn);
+                });
+
+            } catch (err) {
+                status.className = 'error';
+                status.innerHTML = `<b>שגיאה:</b> ${err.message}<br><small>וודא שהקובץ הועלה ל-GitHub ושמו באנגלית קטנה: seasons.xlsx</small>`;
+                console.error(err);
+            }
+        }
+
+        // הפעלת הפונקציה כשהדף עולה
+        window.onload = loadSeasons;
+    </script>
+</body>
+</html>
