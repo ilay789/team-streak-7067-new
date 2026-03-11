@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
@@ -95,3 +96,61 @@
     </script>
 </body>
 </html>
+=======
+async function init() {
+    const errorBox = document.getElementById('error-box');
+    const selector = document.getElementById('year-selector');
+
+    try {
+        // הוספת פרמטר למניעת שמירה במטמון (Cache) כדי שתמיד יטען את הקובץ הכי חדש
+        const response = await fetch('seasons.xlsx?v=' + Math.random());
+        
+        if (!response.ok) {
+            throw new Error(`הקובץ seasons.xlsx לא נמצא בשרת.`);
+        }
+
+        const arrayBuffer = await response.arrayBuffer();
+        const data = new Uint8Array(arrayBuffer);
+        const workbook = XLSX.read(data, { type: 'array' });
+        
+        // קריאת הגיליון הראשון שבו יש נתונים
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        
+        // הפיכה ל-JSON
+        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+        console.log("נתונים שנקראו:", jsonData);
+
+        if (!jsonData || jsonData.length === 0) {
+            throw new Error("קובץ האקסל נטען, אבל לא נמצאו בו שורות של נתונים. וודא שהכותרות בשורה הראשונה הן: Year, Challenge, Robot, Video.");
+        }
+
+        selector.innerHTML = '';
+        jsonData.sort((a, b) => b.Year - a.Year).forEach(item => {
+            if(!item.Year) return; // דילוג על שורות ריקות
+            const btn = document.createElement('button');
+            btn.innerText = item.Year;
+            btn.className = 'year-btn';
+            btn.onclick = () => {
+                document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('card-title').innerText = `עונת ${item.Year}`;
+                document.getElementById('card-content').innerHTML = `
+                    <p><strong>האתגר:</strong> ${item.Challenge || 'אין מידע'}</p>
+                    <p><strong>הרובוט:</strong> ${item.Robot || 'אין מידע'}</p>
+                    ${item.Video ? `<a href="${item.Video}" target="_blank" style="color:#ff6600; font-weight:bold; text-decoration:none; border: 1px solid #ff6600; padding: 5px 10px; border-radius: 5px; display: inline-block; margin-top: 10px;">🎬 לצפייה בסרטון האתגר</a>` : ''}
+                `;
+            };
+            selector.appendChild(btn);
+        });
+
+    } catch (err) {
+        document.getElementById('loading-text').style.display = 'none';
+        errorBox.style.display = 'block';
+        errorBox.innerHTML = `⚠️ <strong>בעיה בטעינה:</strong> ${err.message}`;
+        console.error("Full Error:", err);
+    }
+}
+window.onload = init;
+>>>>>>> b60f21c846958d3b9e7dd85e571da434c6c02dbd
