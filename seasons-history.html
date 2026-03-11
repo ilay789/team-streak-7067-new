@@ -4,112 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>עונות | Team Streak 7067</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link rel="stylesheet" href="./styles/landing.css">
-    
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
-        /* עיצוב כללי תואם לאתר */
-        body { 
-            background-color: #000 !important; 
-            color: white; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            margin: 0; 
-            padding: 20px;
-        }
-
-        .container { 
-            max-width: 1000px; 
-            margin: 100px auto 40px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-        }
-
-        h1 { 
-            color: #ff6600; 
-            font-size: 3em; 
-            text-transform: uppercase; 
-            margin-bottom: 40px;
-            text-shadow: 0 0 15px rgba(255, 102, 0, 0.4);
-        }
-
-        /* סרגל בחירת השנים */
-        .year-selector { 
-            display: flex; 
-            flex-wrap: wrap; 
-            justify-content: center; 
-            gap: 12px; 
-            margin-bottom: 40px; 
-        }
-
-        .year-btn { 
-            background: #0a0a0a; 
-            color: #ff6600; 
-            border: 2px solid #ff6600; 
-            padding: 12px 24px; 
-            font-size: 1.1em;
-            cursor: pointer; 
-            border-radius: 10px; 
-            transition: 0.3s ease; 
-        }
-
-        .year-btn:hover, .year-btn.active { 
-            background: #ff6600; 
-            color: black; 
-            font-weight: bold; 
-            box-shadow: 0 0 20px rgba(255, 102, 0, 0.5);
-            transform: translateY(-3px);
-        }
-
-        /* כרטיס המידע המרכזי */
-        .info-card { 
-            width: 100%; 
-            max-width: 850px; 
-            background: rgba(15, 15, 15, 0.95); 
-            border: 3px solid #ff6600; 
-            border-radius: 25px; 
-            padding: 45px; 
-            min-height: 300px; 
-            box-shadow: 0 15px 40px rgba(0,0,0,0.7);
-            text-align: right;
-        }
-
-        .info-card h2 { color: #ff6600; font-size: 2.2em; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 15px; }
-        .info-card h3 { color: #ff6600; margin-top: 25px; font-size: 1.4em; }
-        .info-card p { font-size: 1.25em; line-height: 1.8; color: #e0e0e0; margin-bottom: 20px; }
-
-        /* כפתור וידאו */
-        .video-link { 
-            display: inline-block; 
-            margin-top: 30px; 
-            background: #222; 
-            color: #ff6600; 
-            padding: 14px 30px; 
-            text-decoration: none; 
-            border-radius: 50px; 
-            font-weight: bold; 
-            border: 2px solid #ff6600; 
-            transition: 0.3s; 
-        }
-
-        .video-link:hover { background: #ff6600; color: black; transform: scale(1.05); }
-
-        /* כפתור חזרה הביתה */
-        .home-btn { 
-            position: fixed; 
-            top: 20px; 
-            right: 20px; 
-            background: #ff6600; 
-            color: black; 
-            padding: 12px 25px; 
-            text-decoration: none; 
-            border-radius: 8px; 
-            font-weight: bold; 
-            z-index: 1000;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-        
-        .loading-msg { color: #555; font-style: italic; font-size: 1.2em; }
+        body { background-color: #000; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; text-align: center; }
+        .container { max-width: 900px; margin: 80px auto; }
+        h1 { color: #ff6600; font-size: 2.5em; }
+        .year-selector { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 30px 0; min-height: 50px; }
+        .year-btn { background: #111; color: #ff6600; border: 2px solid #ff6600; padding: 10px 20px; cursor: pointer; border-radius: 8px; font-weight: bold; transition: 0.3s; }
+        .year-btn.active { background: #ff6600; color: black; }
+        .info-card { background: #0a0a0a; border: 2px solid #ff6600; border-radius: 20px; padding: 30px; text-align: right; min-height: 200px; }
+        .error-msg { color: #ff4444; background: #220000; padding: 15px; border-radius: 10px; border: 1px solid red; margin-bottom: 20px; display: none; }
+        .home-btn { position: fixed; top: 20px; right: 20px; background: #ff6600; color: black; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -117,84 +22,73 @@
     <a href="index.html" class="home-btn">🏠 חזרה לבית</a>
 
     <div class="container">
-        <h1>עונות ורובוטים 🚀</h1>
+        <h1>🚀 עונות ורובוטים</h1>
         
+        <div id="error-box" class="error-msg"></div>
+
         <div class="year-selector" id="year-selector">
-            <p class="loading-msg">טוען נתונים מקובץ האקסל...</p>
+            <p id="loading-text">מחפש את נתוני האקסל... 🔎</p>
         </div>
 
         <div class="info-card" id="info-card">
-            <h2 id="card-year-title">בחר עונה מהרשימה</h2>
+            <h2 id="card-title">בחר עונה מהרשימה</h2>
             <div id="card-content">
-                <p>כאן יוצגו הפרטים על האתגר והרובוט שבנינו בכל שנה, כפי שהם מופיעים במבנה הנתונים שלנו.</p>
+                <p>המידע ייטען באופן אוטומטי מקובץ האקסל של הקבוצה.</p>
             </div>
         </div>
     </div>
 
     <script>
-        let seasonsData = [];
+        async function init() {
+            const errorBox = document.getElementById('error-box');
+            const selector = document.getElementById('year-selector');
 
-        // פונקציה שטוענת את קובץ האקסל
-        async function loadExcelData() {
             try {
-                // הקוד מחפש את הקובץ seasons.xlsx באותה תיקייה
+                // שלב 1: ניסיון למשוך את הקובץ
                 const response = await fetch('seasons.xlsx');
+                
+                if (!response.ok) {
+                    throw new Error(`לא הצלחתי למצוא את הקובץ seasons.xlsx. (שגיאה ${response.status})`);
+                }
+
+                // שלב 2: קריאת הנתונים
                 const arrayBuffer = await response.arrayBuffer();
                 const data = new Uint8Array(arrayBuffer);
                 const workbook = XLSX.read(data, { type: 'array' });
-                
-                // קריאת הגיליון הראשון
-                const sheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[sheetName];
-                
-                // המרת הנתונים למערך של אובייקטים (JSON)
-                seasonsData = XLSX.utils.sheet_to_json(worksheet);
-                
-                createYearButtons();
-            } catch (error) {
-                document.getElementById('year-selector').innerHTML = 
-                    "<p style='color:red;'>שגיאה: לא ניתן למצוא את הקובץ seasons.xlsx בתיקייה. וודא שהעלת אותו לגיטהאב.</p>";
-                console.error("Error loading Excel:", error);
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+                if (jsonData.length === 0) {
+                    throw new Error("קובץ האקסל נמצא, אבל הוא נראה ריק.");
+                }
+
+                // שלב 3: יצירת כפתורים
+                selector.innerHTML = '';
+                jsonData.sort((a, b) => b.Year - a.Year).forEach(item => {
+                    const btn = document.createElement('button');
+                    btn.innerText = item.Year;
+                    btn.className = 'year-btn';
+                    btn.onclick = () => {
+                        document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        document.getElementById('card-title').innerText = `עונת ${item.Year}`;
+                        document.getElementById('card-content').innerHTML = `
+                            <p><strong>האתגר:</strong> ${item.Challenge}</p>
+                            <p><strong>הרובוט:</strong> ${item.Robot}</p>
+                            <a href="${item.Video}" target="_blank" style="color:#ff6600; font-weight:bold;">🎬 לצפייה בסרטון האתגר</a>
+                        `;
+                    };
+                    selector.appendChild(btn);
+                });
+
+            } catch (err) {
+                document.getElementById('loading-text').style.display = 'none';
+                errorBox.style.display = 'block';
+                errorBox.innerHTML = `⚠️ <strong>בעיה בטעינה:</strong> ${err.message}<br><small>וודא שהקובץ seasons.xlsx נמצא באותה תיקייה בגיטהאב.</small>`;
             }
         }
 
-        // יצירת כפתור עבור כל שנה שנמצאה באקסל
-        function createYearButtons() {
-            const selector = document.getElementById('year-selector');
-            selector.innerHTML = ''; // ניקוי הודעת הטעינה
-            
-            // מיון מהשנה החדשה ביותר לישנה ביותר
-            seasonsData.sort((a, b) => b.Year - a.Year).forEach(item => {
-                const btn = document.createElement('button');
-                btn.innerText = item.Year;
-                btn.className = 'year-btn';
-                btn.onclick = () => displaySeasonInfo(item, btn);
-                selector.appendChild(btn);
-            });
-        }
-
-        // הצגת המידע של העונה שנבחרה בכרטיס המרכזי
-        function displaySeasonInfo(item, btn) {
-            // עדכון עיצוב הכפתור הנבחר
-            document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            // עדכון הכותרת והתוכן מהאקסל
-            document.getElementById('card-year-title').innerText = `עונת ${item.Year}: ${item.Challenge.split(':')[0]}`;
-            
-            document.getElementById('card-content').innerHTML = `
-                <h3>האתגר השנתי:</h3>
-                <p>${item.Challenge || 'מידע בקרוב...'}</p>
-                
-                <h3>הרובוט של Team Streak:</h3>
-                <p>${item.Robot || 'פירוט על הרובוט יועלה בהמשך.'}</p>
-                
-                ${item.Video ? `<a href="${item.Video}" target="_blank" class="video-link">🎬 לצפייה בסרטון האתגר</a>` : ''}
-            `;
-        }
-
-        // הפעלת הטעינה כשהדף עולה
-        window.onload = loadExcelData;
+        window.onload = init;
     </script>
 </body>
 </html>
