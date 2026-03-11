@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>עונות | Team Streak 7067</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="./styles/landing.css">
+    
+    <style>
+        /* עיצוב כללי תואם לאתר */
+        body { 
+            background-color: #000 !important; 
+            color: white; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 20px;
+        }
+
+        .container { 
+            max-width: 1000px; 
+            margin: 100px auto 40px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+
+        h1 { 
+            color: #ff6600; 
+            font-size: 3em; 
+            text-transform: uppercase; 
+            margin-bottom: 40px;
+            text-shadow: 0 0 15px rgba(255, 102, 0, 0.4);
+        }
+
+        /* סרגל בחירת השנים */
+        .year-selector { 
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            gap: 12px; 
+            margin-bottom: 40px; 
+        }
+
+        .year-btn { 
+            background: #0a0a0a; 
+            color: #ff6600; 
+            border: 2px solid #ff6600; 
+            padding: 12px 24px; 
+            font-size: 1.1em;
+            cursor: pointer; 
+            border-radius: 10px; 
+            transition: 0.3s ease; 
+        }
+
+        .year-btn:hover, .year-btn.active { 
+            background: #ff6600; 
+            color: black; 
+            font-weight: bold; 
+            box-shadow: 0 0 20px rgba(255, 102, 0, 0.5);
+            transform: translateY(-3px);
+        }
+
+        /* כרטיס המידע המרכזי */
+        .info-card { 
+            width: 100%; 
+            max-width: 850px; 
+            background: rgba(15, 15, 15, 0.95); 
+            border: 3px solid #ff6600; 
+            border-radius: 25px; 
+            padding: 45px; 
+            min-height: 300px; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+            text-align: right;
+        }
+
+        .info-card h2 { color: #ff6600; font-size: 2.2em; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 15px; }
+        .info-card h3 { color: #ff6600; margin-top: 25px; font-size: 1.4em; }
+        .info-card p { font-size: 1.25em; line-height: 1.8; color: #e0e0e0; margin-bottom: 20px; }
+
+        /* כפתור וידאו */
+        .video-link { 
+            display: inline-block; 
+            margin-top: 30px; 
+            background: #222; 
+            color: #ff6600; 
+            padding: 14px 30px; 
+            text-decoration: none; 
+            border-radius: 50px; 
+            font-weight: bold; 
+            border: 2px solid #ff6600; 
+            transition: 0.3s; 
+        }
+
+        .video-link:hover { background: #ff6600; color: black; transform: scale(1.05); }
+
+        /* כפתור חזרה הביתה */
+        .home-btn { 
+            position: fixed; 
+            top: 20px; 
+            right: 20px; 
+            background: #ff6600; 
+            color: black; 
+            padding: 12px 25px; 
+            text-decoration: none; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        
+        .loading-msg { color: #555; font-style: italic; font-size: 1.2em; }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="home-btn">🏠 חזרה לבית</a>
+
+    <div class="container">
+        <h1>עונות ורובוטים 🚀</h1>
+        
+        <div class="year-selector" id="year-selector">
+            <p class="loading-msg">טוען נתונים מקובץ האקסל...</p>
+        </div>
+
+        <div class="info-card" id="info-card">
+            <h2 id="card-year-title">בחר עונה מהרשימה</h2>
+            <div id="card-content">
+                <p>כאן יוצגו הפרטים על האתגר והרובוט שבנינו בכל שנה, כפי שהם מופיעים במבנה הנתונים שלנו.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let seasonsData = [];
+
+        // פונקציה שטוענת את קובץ האקסל
+        async function loadExcelData() {
+            try {
+                // הקוד מחפש את הקובץ seasons.xlsx באותה תיקייה
+                const response = await fetch('seasons.xlsx');
+                const arrayBuffer = await response.arrayBuffer();
+                const data = new Uint8Array(arrayBuffer);
+                const workbook = XLSX.read(data, { type: 'array' });
+                
+                // קריאת הגיליון הראשון
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                
+                // המרת הנתונים למערך של אובייקטים (JSON)
+                seasonsData = XLSX.utils.sheet_to_json(worksheet);
+                
+                createYearButtons();
+            } catch (error) {
+                document.getElementById('year-selector').innerHTML = 
+                    "<p style='color:red;'>שגיאה: לא ניתן למצוא את הקובץ seasons.xlsx בתיקייה. וודא שהעלת אותו לגיטהאב.</p>";
+                console.error("Error loading Excel:", error);
+            }
+        }
+
+        // יצירת כפתור עבור כל שנה שנמצאה באקסל
+        function createYearButtons() {
+            const selector = document.getElementById('year-selector');
+            selector.innerHTML = ''; // ניקוי הודעת הטעינה
+            
+            // מיון מהשנה החדשה ביותר לישנה ביותר
+            seasonsData.sort((a, b) => b.Year - a.Year).forEach(item => {
+                const btn = document.createElement('button');
+                btn.innerText = item.Year;
+                btn.className = 'year-btn';
+                btn.onclick = () => displaySeasonInfo(item, btn);
+                selector.appendChild(btn);
+            });
+        }
+
+        // הצגת המידע של העונה שנבחרה בכרטיס המרכזי
+        function displaySeasonInfo(item, btn) {
+            // עדכון עיצוב הכפתור הנבחר
+            document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // עדכון הכותרת והתוכן מהאקסל
+            document.getElementById('card-year-title').innerText = `עונת ${item.Year}: ${item.Challenge.split(':')[0]}`;
+            
+            document.getElementById('card-content').innerHTML = `
+                <h3>האתגר השנתי:</h3>
+                <p>${item.Challenge || 'מידע בקרוב...'}</p>
+                
+                <h3>הרובוט של Team Streak:</h3>
+                <p>${item.Robot || 'פירוט על הרובוט יועלה בהמשך.'}</p>
+                
+                ${item.Video ? `<a href="${item.Video}" target="_blank" class="video-link">🎬 לצפייה בסרטון האתגר</a>` : ''}
+            `;
+        }
+
+        // הפעלת הטעינה כשהדף עולה
+        window.onload = loadExcelData;
+    </script>
+</body>
+</html>

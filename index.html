@@ -1,35 +1,227 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>Team Streak #7067 | Landing</title>
-        <meta name="author" content="ארז נחמנזון">
-        <meta name="description" content="אתר נחיתה #7067">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" type="text/css" href="./styles/landing.css">    
-    </head>
-    <body>
+<html lang="he" dir="rtl">
+<head>
+    <title>Team Streak #7067 | Landing</title>
+    <meta name="author" content="ארז נחמנזון">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="./styles/landing.css">
+    
+    <style>
+        /* הרקע השחור והנקי */
+        body { 
+            margin: 0; 
+            overflow-x: hidden; 
+            background-color: #000 !important; 
+            color: white;
+        }
 
-        <h1 id="welcome">Welcome To Team Streak 7067 Website</h1>
-        <div class="button-container">
-        <a class="custom-btn btn-5" href="./frc.html" target="_blank">FRC   <img class="frc-img" src="./imgs/frc_logo.webp"></a>
-        <a class="custom-btn btn-6" href="./history.html">History 7067   <img class="history-img" src="./imgs/download.jpg"></a>
-        <a class="custom-btn btn-7" href="./home.html">🏠︎</a>
-        <a class="custom-btn btn-8" href="./keshetreem.html">קשת ראם<img class="keshet-reem-img" src="./imgs/keshet-reem.png"></a>
-        <a class="custom-btn btn-9" href="./3d-files.html">קבצי תלת מימד<br>להדפסה 📐</a>
-        <a class="custom-btn btn-10" href="./engineering.html">⚙️הנדסה</a>
-        <a class="custom-btn btn-11" href="./seasons-history.html">היסטורית<br>עונות 📜</a>
+        /* עיצוב הכותרת - נשאר נאמן למקור ב-landing.css */
+        #welcome {
+            text-align: center;
+            margin-top: 120px; 
+        }
 
+        /* תפריט עליון (Header) */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 40px;
+            background-color: rgba(0, 0, 0, 0.95);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-sizing: border-box;
+            border-bottom: 2px solid #ff6600;
+        }
 
+        .logo { color: #ff6600; font-size: 26px; font-weight: bold; }
 
+        /* כפתור המבורגר */
+        .menu-icon { 
+            cursor: pointer; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px; 
+            z-index: 1001; 
+        }
+
+        .menu-icon .bar { 
+            width: 45px; 
+            height: 5px; 
+            background-color: #ff6600; 
+            transition: 0.4s; 
+            border-radius: 5px; 
+        }
+
+        .menu-icon.active .bar:nth-child(1) { transform: translateY(13px) rotate(45deg); }
+        .menu-icon.active .bar:nth-child(2) { opacity: 0; }
+        .menu-icon.active .bar:nth-child(3) { transform: translateY(-13px) rotate(-45deg); }
+
+        /* תפריט צד */
+        .side-menu {
+            position: fixed;
+            top: 0;
+            right: -350px;
+            width: 300px;
+            height: 100vh;
+            background-color: #0a0a0a;
+            padding-top: 100px;
+            transition: right 0.5s ease-in-out;
+            z-index: 999;
+            border-left: 2px solid #ff6600;
+        }
+
+        .side-menu.open { right: 0; }
+
+        .side-menu a {
+            display: block;
+            padding: 20px 30px;
+            color: white;
+            text-decoration: none;
+            font-size: 20px;
+            border-bottom: 1px solid #1a1a1a;
+            transition: 0.3s;
+            text-align: right;
+        }
+        .side-menu a:hover { background-color: #ff6600; color: black; font-weight: bold; }
+
+        /* סליידר תמונות */
+        .slider-container {
+            position: relative;
+            width: 90%;
+            max-width: 1000px;
+            margin: 40px auto;
+            overflow: hidden;
+            border: 3px solid #ff6600;
+            border-radius: 20px;
+            background-color: #050505;
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slides { display: flex; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); width: 100%; height: 100%; }
+        .slides img { width: 100%; flex-shrink: 0; object-fit: cover; }
+        
+        .prev, .next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.8);
+            color: #ff6600;
+            border: 1px solid #ff6600;
+            padding: 15px;
+            cursor: pointer;
+            font-size: 28px;
+            z-index: 10;
+            border-radius: 50%;
+        }
+        .next { left: 20px; }
+        .prev { right: 20px; }
+
+        .dots { text-align: center; margin-bottom: 50px; }
+        .dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            margin: 0 8px;
+            background: #333;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .dot.active { background: #ff6600; }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="logo">TEAM STREAK 7067</div>
+        <div class="menu-icon" id="menu-btn" onclick="toggleMenu()">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+    </header>
+
+    <nav id="side-menu" class="side-menu">
+        <a href="./index.html">🏠 עמוד הבית</a>
+        <a href="./frc.html">🤖 מה זה FRC?</a>
+        <a href="./history.html">📜 היסטוריה 7067</a>
+        <a href="./keshetreem.html">🏫 תיכון קשת ראם</a>
+        <a href="./3d-printing.html">🖨️ הדפסות תלת מימד</a>
+        <a href="./engineering.html">⚙️ הנדסה ומכניקה</a>
+        <a href="./seasons-history.html">📅 עונות</a> </nav>
+
+    <h1 id="welcome">Welcome To Team Streak 7067 Website</h1>
+
+    <div class="slider-container">
+        <div class="slides" id="slides">
+            </div>
+        
+        <button class="prev" onclick="moveSlide(-1)">&#10095;</button>
+        <button class="next" onclick="moveSlide(1)">&#10094;</button>
     </div>
+    
+    <div class="dots" id="dots-container"></div>
 
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById("side-menu");
+            const btn = document.getElementById("menu-btn");
+            menu.classList.toggle("open");
+            btn.classList.toggle("active");
+        }
 
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById("side-menu");
+            const btn = document.getElementById("menu-btn");
+            if (!menu.contains(e.target) && !btn.contains(e.target) && menu.classList.contains('open')) {
+                toggleMenu();
+            }
+        });
 
+        let currentIndex = 0;
+        const slidesContainer = document.getElementById('slides');
+        const images = slidesContainer.getElementsByTagName('img');
+        const dotsContainer = document.getElementById('dots-container');
 
+        function setupSlider() {
+            if (images.length === 0) return;
+            for (let i = 0; i < images.length; i++) {
+                const dot = document.createElement('span');
+                dot.classList.add('dot');
+                if (i === 0) dot.classList.add('active');
+                dot.onclick = () => goToSlide(i);
+                dotsContainer.appendChild(dot);
+            }
+        }
+
+        function updateSlider() {
+            if (images.length === 0) return;
+            slidesContainer.style.transform = `translateX(${currentIndex * 100}%)`;
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach(d => d.classList.remove('active'));
+            if(dots[currentIndex]) dots[currentIndex].classList.add('active');
+        }
+
+        function moveSlide(step) {
+            if (images.length === 0) return;
+            currentIndex += step;
+            if (currentIndex >= images.length) currentIndex = 0;
+            if (currentIndex < 0) currentIndex = images.length - 1;
+            updateSlider();
+        }
+
+        function goToSlide(index) {
+            currentIndex = index;
+            updateSlider();
+        }
+
+        setupSlider();
+    </script>
 </body>
 </html>
-
-    
-
-
-    
