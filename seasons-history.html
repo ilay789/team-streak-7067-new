@@ -3,76 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Team Streak 7067 | היסטוריית עונות</title>
+    <title>עונות | Team Streak 7067</title>
     
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 
     <style>
-        :root { --orange: #ff6600; --bg: #000; }
-        body { background-color: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; text-align: center; display: flex; flex-direction: column; min-height: 100vh; }
+        :root { --orange: #ff6600; --bg: #000; --card-bg: #0a0a0a; }
         
-        h1 { color: var(--orange); text-shadow: 0 0 15px rgba(255, 102, 0, 0.5); font-size: 2.8rem; margin-top: 40px; }
-        
-        .selector { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 30px; }
-        
-        .year-btn {
-            background: transparent; color: var(--orange); border: 2px solid var(--orange);
-            padding: 10px 25px; font-size: 18px; font-weight: bold; cursor: pointer; border-radius: 8px; transition: 0.3s;
+        body { 
+            background-color: var(--bg); 
+            color: white; 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            text-align: center;
         }
-        .year-btn:hover, .year-btn.active { background: var(--orange); color: black; box-shadow: 0 0 15px var(--orange); }
 
-        .card {
-            background: #0a0a0a; border: 1px solid #333; border-top: 4px solid var(--orange);
-            border-radius: 12px; padding: 25px; width: 90%; max-width: 550px; margin: 0 auto 50px auto;
-            display: none; box-shadow: 0 10px 40px rgba(0,0,0,0.9); text-align: right;
+        /* כותרת מינימליסטית וזוהרת */
+        h1 { 
+            color: var(--orange); 
+            text-shadow: 0 0 20px rgba(255, 102, 0, 0.4); 
+            font-size: 3.5rem; 
+            margin: 60px 0 40px 0;
+            letter-spacing: 3px;
         }
-        .card h2 { color: var(--orange); margin-top: 0; font-size: 1.8rem; }
-        
-        /* תיבת ההסבר בתחתית העמוד */
-        .bottom-description {
-            background: rgba(255, 102, 0, 0.05);
+
+        /* מיכל הכפתורים */
+        .selector { 
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            gap: 12px; 
+            margin-bottom: 50px; 
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .year-btn {
+            background: transparent; 
+            color: white; 
+            border: 1px solid #333;
+            padding: 12px 24px; 
+            font-size: 18px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            border-radius: 4px; 
+            transition: 0.3s all ease;
+        }
+
+        .year-btn:hover { border-color: var(--orange); color: var(--orange); }
+        .year-btn.active { 
+            background: var(--orange); 
+            color: black; 
+            border-color: var(--orange);
+            box-shadow: 0 0 15px rgba(255, 102, 0, 0.5);
+        }
+
+        /* עיצוב כרטיס האתגר */
+        .challenge-card {
+            background: var(--card-bg);
             border: 1px solid #222;
-            border-top: 2px solid var(--orange);
-            padding: 30px;
-            max-width: 850px;
-            margin: auto auto 40px auto; /* דוחף לתחתית */
+            border-top: 3px solid var(--orange);
             border-radius: 12px;
+            padding: 40px;
+            width: 90%;
+            max-width: 650px;
+            margin: 0 auto;
+            display: none;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
             text-align: right;
-            line-height: 1.8;
+            position: relative;
+            overflow: hidden;
         }
-        .bottom-description h3 { color: var(--orange); margin-top: 0; }
-        .bottom-description p { color: #ccc; font-size: 1.1rem; margin: 0; }
+
+        /* אפקט עיצובי ברקע הכרטיס */
+        .challenge-card::before {
+            content: "7067";
+            position: absolute;
+            bottom: -20px;
+            left: -10px;
+            font-size: 8rem;
+            color: rgba(255, 102, 0, 0.03);
+            font-weight: 900;
+            z-index: 0;
+        }
+
+        .challenge-card h2 { 
+            color: var(--orange); 
+            font-size: 2.2rem; 
+            margin-top: 0; 
+            border-bottom: 1px solid #222;
+            padding-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .challenge-info { position: relative; z-index: 1; }
+        
+        .challenge-info p { 
+            font-size: 1.3rem; 
+            line-height: 1.8; 
+            margin: 20px 0;
+            color: #ccc;
+        }
+
+        .challenge-info strong { color: white; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; }
 
         .video-btn {
-            display: inline-block; margin-top: 20px; padding: 12px 25px;
-            background: var(--orange); color: black; text-decoration: none;
-            font-weight: bold; border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            margin-top: 30px;
+            padding: 12px 30px;
+            background: transparent;
+            color: var(--orange);
+            text-decoration: none;
+            font-weight: bold;
+            border: 2px solid var(--orange);
+            border-radius: 50px;
+            transition: 0.3s;
         }
+
+        .video-btn:hover { background: var(--orange); color: black; }
+
+        .back-home {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+        .back-home:hover { color: var(--orange); }
+
     </style>
 </head>
 <body>
 
-    <a href="index.html" style="color: #666; text-decoration: none; float: right; font-weight: bold;">🏠 חזרה לבית</a>
+    <a href="index.html" class="back-home">🏠 חזרה לדף הבית</a>
     
-    <h1>היסטוריית עונות 🗓️</h1>
+    <h1>עונות</h1>
 
     <div id="year-selector" class="selector"></div>
 
-    <div id="info-card" class="card">
-        <h2 id="card-title"></h2>
-        <div id="card-content"></div>
-    </div>
-
-    <div class="bottom-description">
-        <h3>על דף היסטוריית העונות שלנו</h3>
-        <p>
-            דף זה מרכז את כל שנות הפעילות של קבוצת <strong>Team Streak #7067</strong> מאז הקמתה בשנת 2018. 
-            עבורנו, כל שנה המוצגת כאן היא לא רק תחרות, אלא תהליך למידה הנדסי מורכב. 
-            מכאן תוכלו לראות איך התפתחנו מרמת התכנון, דרך המכניקה ועד לביצועים על המגרש. 
-            <br><br>
-            אנחנו משתמשים בנתונים הללו כדי ללמוד מטעויות העבר, לשמר ידע מקצועי ולהציג לדורות הבאים של הקבוצה את המורשת שבנינו. 
-            הרובוטים שאתם רואים כאן הם תוצאה של אלפי שעות עבודה בסדנה, תכנות לילות לבנים ושיתוף פעולה בין כלל מחלקות הקבוצה.
-        </p>
+    <div id="info-card" class="challenge-card">
+        <div class="challenge-info">
+            <h2 id="card-title"></h2>
+            <div id="card-content"></div>
+        </div>
     </div>
 
     <script>
@@ -96,10 +175,11 @@
                         document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
                         btn.classList.add('active');
                         card.style.display = 'block';
-                        document.getElementById('card-title').innerText = "עונת " + item.Year;
+                        
+                        document.getElementById('card-title').innerText = item.Year;
                         document.getElementById('card-content').innerHTML = `
-                            <p><strong>🎯 אתגר:</strong> ${item.Challenge || 'מידע בקרוב'}</p>
-                            <p><strong>🤖 רובוט:</strong> ${item.Robot || 'מידע בקרוב'}</p>
+                            <p><strong>האתגר:</strong><br>${item.Challenge || 'מידע יעודכן בקרוב'}</p>
+                            <p><strong>הרובוט:</strong><br>${item.Robot || 'מידע יעודכן בקרוב'}</p>
                             ${item.Video ? `<a href="${item.Video}" target="_blank" class="video-btn">🎬 לצפייה בסרטון האתגר</a>` : ''}
                         `;
                     };
