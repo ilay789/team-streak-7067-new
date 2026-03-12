@@ -8,150 +8,111 @@
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 
     <style>
-        :root { --orange: #ff6600; --bg: #000; --card-bg: #0a0a0a; }
+        :root { --orange: #ff6600; --bg: #000; }
         
         body { 
             background-color: var(--bg); 
             color: white; 
-            font-family: 'Segoe UI', system-ui, sans-serif; 
+            font-family: 'Segoe UI', sans-serif; 
             margin: 0; 
             padding: 20px; 
-            text-align: center;
+            text-align: center; 
         }
 
-        /* כותרת מינימליסטית וזוהרת */
+        /* הכותרת שביקשת - כמו בדף הבית */
         h1 { 
             color: var(--orange); 
-            text-shadow: 0 0 20px rgba(255, 102, 0, 0.4); 
+            text-shadow: 0 0 15px rgba(255, 102, 0, 0.6); 
             font-size: 3.5rem; 
-            margin: 60px 0 40px 0;
-            letter-spacing: 3px;
+            margin-top: 60px;
+            font-weight: 800;
+            text-transform: uppercase;
         }
 
-        /* מיכל הכפתורים */
         .selector { 
             display: flex; 
             flex-wrap: wrap; 
             justify-content: center; 
-            gap: 12px; 
-            margin-bottom: 50px; 
-            max-width: 900px;
-            margin-left: auto;
-            margin-right: auto;
+            gap: 10px; 
+            margin: 40px 0; 
         }
 
         .year-btn {
             background: transparent; 
-            color: white; 
-            border: 1px solid #333;
-            padding: 12px 24px; 
-            font-size: 18px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            border-radius: 4px; 
-            transition: 0.3s all ease;
-        }
-
-        .year-btn:hover { border-color: var(--orange); color: var(--orange); }
-        .year-btn.active { 
-            background: var(--orange); 
-            color: black; 
-            border-color: var(--orange);
-            box-shadow: 0 0 15px rgba(255, 102, 0, 0.5);
-        }
-
-        /* עיצוב כרטיס האתגר */
-        .challenge-card {
-            background: var(--card-bg);
-            border: 1px solid #222;
-            border-top: 3px solid var(--orange);
-            border-radius: 12px;
-            padding: 40px;
-            width: 90%;
-            max-width: 650px;
-            margin: 0 auto;
-            display: none;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            text-align: right;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* אפקט עיצובי ברקע הכרטיס */
-        .challenge-card::before {
-            content: "7067";
-            position: absolute;
-            bottom: -20px;
-            left: -10px;
-            font-size: 8rem;
-            color: rgba(255, 102, 0, 0.03);
-            font-weight: 900;
-            z-index: 0;
-        }
-
-        .challenge-card h2 { 
             color: var(--orange); 
-            font-size: 2.2rem; 
-            margin-top: 0; 
-            border-bottom: 1px solid #222;
-            padding-bottom: 15px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .challenge-info { position: relative; z-index: 1; }
-        
-        .challenge-info p { 
-            font-size: 1.3rem; 
-            line-height: 1.8; 
-            margin: 20px 0;
-            color: #ccc;
-        }
-
-        .challenge-info strong { color: white; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; }
-
-        .video-btn {
-            display: inline-flex;
-            align-items: center;
-            margin-top: 30px;
-            padding: 12px 30px;
-            background: transparent;
-            color: var(--orange);
-            text-decoration: none;
-            font-weight: bold;
             border: 2px solid var(--orange);
-            border-radius: 50px;
+            padding: 10px 25px; 
+            font-size: 18px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            border-radius: 8px; 
             transition: 0.3s;
         }
 
-        .video-btn:hover { background: var(--orange); color: black; }
+        .year-btn:hover, .year-btn.active { 
+            background: var(--orange); 
+            color: black; 
+            box-shadow: 0 0 15px var(--orange); 
+        }
 
-        .back-home {
+        /* כרטיס המידע */
+        .card {
+            background: #0a0a0a; 
+            border: 1px solid #333; 
+            border-top: 4px solid var(--orange);
+            border-radius: 12px; 
+            padding: 30px; 
+            width: 90%; 
+            max-width: 550px; 
+            margin: 0 auto;
+            display: none; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9); 
+            text-align: right;
+        }
+
+        .card h2 { color: var(--orange); margin-top: 0; font-size: 2rem; }
+        
+        .challenge-text {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: #ddd;
+            margin: 15px 0;
+        }
+
+        .video-btn {
+            display: inline-block; 
+            margin-top: 20px; 
+            padding: 12px 25px;
+            background: var(--orange); 
+            color: black; 
+            text-decoration: none;
+            font-weight: bold; 
+            border-radius: 6px;
+            transition: 0.3s;
+        }
+
+        .video-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
+
+        .back-link {
             position: absolute;
             top: 20px;
             right: 20px;
             color: #666;
             text-decoration: none;
-            font-size: 14px;
-            transition: 0.3s;
         }
-        .back-home:hover { color: var(--orange); }
-
     </style>
 </head>
 <body>
 
-    <a href="index.html" class="back-home">🏠 חזרה לדף הבית</a>
+    <a href="index.html" class="back-link">🏠 חזרה</a>
     
     <h1>עונות</h1>
 
     <div id="year-selector" class="selector"></div>
 
-    <div id="info-card" class="challenge-card">
-        <div class="challenge-info">
-            <h2 id="card-title"></h2>
-            <div id="card-content"></div>
-        </div>
+    <div id="info-card" class="card">
+        <h2 id="card-title"></h2>
+        <div id="card-content" class="challenge-text"></div>
     </div>
 
     <script>
@@ -160,12 +121,14 @@
             const card = document.getElementById('info-card');
 
             try {
+                // טעינת הקובץ
                 const response = await fetch('seasons.xlsx?v=' + Date.now());
                 const arrayBuffer = await response.arrayBuffer();
                 const data = new Uint8Array(arrayBuffer);
                 const workbook = XLSX.read(data, { type: 'array' });
                 const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
 
+                // יצירת הכפתורים
                 rows.sort((a, b) => b.Year - a.Year).forEach(item => {
                     if(!item.Year) return;
                     const btn = document.createElement('button');
@@ -176,11 +139,11 @@
                         btn.classList.add('active');
                         card.style.display = 'block';
                         
-                        document.getElementById('card-title').innerText = item.Year;
+                        document.getElementById('card-title').innerText = "עונת " + item.Year;
                         document.getElementById('card-content').innerHTML = `
-                            <p><strong>האתגר:</strong><br>${item.Challenge || 'מידע יעודכן בקרוב'}</p>
-                            <p><strong>הרובוט:</strong><br>${item.Robot || 'מידע יעודכן בקרוב'}</p>
-                            ${item.Video ? `<a href="${item.Video}" target="_blank" class="video-btn">🎬 לצפייה בסרטון האתגר</a>` : ''}
+                            <p><strong>🎯 האתגר:</strong> ${item.Challenge || 'מעדכנים נתונים...'}</p>
+                            <p><strong>🤖 הרובוט:</strong> ${item.Robot || 'מעדכנים נתונים...'}</p>
+                            ${item.Video ? `<a href="${item.Video}" target="_blank" class="video-btn">🎬 לצפייה באתגר</a>` : ''}
                         `;
                     };
                     selector.appendChild(btn);
