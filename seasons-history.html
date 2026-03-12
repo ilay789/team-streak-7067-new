@@ -13,27 +13,45 @@
         body { 
             background-color: var(--bg); 
             color: white; 
-            font-family: 'Segoe UI', sans-serif; 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
             margin: 0; 
             padding: 20px; 
-            text-align: center; 
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
-        /* הכותרת שביקשת - כמו בדף הבית */
+        /* חזרה לדף הבית */
+        .back-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #888;
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .back-link:hover { color: var(--orange); }
+
+        /* כותרת זוהרת ומעוצבת */
         h1 { 
             color: var(--orange); 
-            text-shadow: 0 0 15px rgba(255, 102, 0, 0.6); 
-            font-size: 3.5rem; 
+            text-shadow: 
+                0 0 10px rgba(255, 102, 0, 0.7),
+                0 0 20px rgba(255, 102, 0, 0.3);
+            font-size: 3.8rem; 
             margin-top: 60px;
-            font-weight: 800;
-            text-transform: uppercase;
+            font-weight: 900;
+            letter-spacing: -1px;
         }
 
+        /* מיכל כפתורי השנים */
         .selector { 
             display: flex; 
             flex-wrap: wrap; 
             justify-content: center; 
-            gap: 10px; 
+            gap: 12px; 
             margin: 40px 0; 
         }
 
@@ -41,78 +59,101 @@
             background: transparent; 
             color: var(--orange); 
             border: 2px solid var(--orange);
-            padding: 10px 25px; 
+            padding: 12px 28px; 
             font-size: 18px; 
             font-weight: bold; 
             cursor: pointer; 
-            border-radius: 8px; 
-            transition: 0.3s;
+            border-radius: 10px; 
+            transition: 0.3s all cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .year-btn:hover, .year-btn.active { 
             background: var(--orange); 
             color: black; 
-            box-shadow: 0 0 15px var(--orange); 
+            box-shadow: 0 0 20px var(--orange);
+            transform: translateY(-3px);
         }
 
         /* כרטיס המידע */
         .card {
             background: #0a0a0a; 
-            border: 1px solid #333; 
-            border-top: 4px solid var(--orange);
-            border-radius: 12px; 
-            padding: 30px; 
+            border: 1px solid #222; 
+            border-top: 5px solid var(--orange);
+            border-radius: 15px; 
+            padding: 35px; 
             width: 90%; 
-            max-width: 550px; 
-            margin: 0 auto;
+            max-width: 600px; 
+            margin: 0 auto 60px auto;
             display: none; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.9); 
+            box-shadow: 0 15px 50px rgba(0,0,0,0.9); 
             text-align: right;
+            animation: fadeIn 0.5s ease;
         }
 
-        .card h2 { color: var(--orange); margin-top: 0; font-size: 2rem; }
-        
-        .challenge-text {
-            font-size: 1.2rem;
-            line-height: 1.6;
-            color: #ddd;
-            margin: 15px 0;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
+
+        .card h2 { color: var(--orange); margin-top: 0; font-size: 2.2rem; border-bottom: 1px solid #222; padding-bottom: 15px; }
+        
+        .challenge-info p { font-size: 1.25rem; line-height: 1.7; color: #eee; margin: 20px 0; }
+        .challenge-info strong { color: var(--orange); }
 
         .video-btn {
-            display: inline-block; 
-            margin-top: 20px; 
-            padding: 12px 25px;
+            display: inline-flex;
+            align-items: center;
+            margin-top: 25px;
+            padding: 12px 30px;
             background: var(--orange); 
             color: black; 
             text-decoration: none;
             font-weight: bold; 
-            border-radius: 6px;
+            border-radius: 8px;
             transition: 0.3s;
         }
+        .video-btn:hover { transform: scale(1.05); filter: brightness(1.2); }
 
-        .video-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
-
-        .back-link {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            color: #666;
-            text-decoration: none;
+        /* תיבת ההסבר בתחתית */
+        .bottom-description {
+            background: rgba(255, 102, 0, 0.03);
+            border: 1px solid #1a1a1a;
+            border-top: 2px solid var(--orange);
+            padding: 35px;
+            max-width: 850px;
+            margin: auto auto 40px auto;
+            border-radius: 15px;
+            text-align: right;
+            line-height: 1.8;
         }
+        .bottom-description h3 { color: var(--orange); margin-top: 0; font-size: 1.5rem; }
+        .bottom-description p { color: #bbb; font-size: 1.1rem; margin: 0; }
+
     </style>
 </head>
 <body>
 
-    <a href="index.html" class="back-link">🏠 חזרה</a>
+    <a href="index.html" class="back-link">🏠 חזרה לבית</a>
     
-    <h1>עונות</h1>
+    <h1>עונות 🗓️</h1>
 
     <div id="year-selector" class="selector"></div>
 
     <div id="info-card" class="card">
         <h2 id="card-title"></h2>
-        <div id="card-content" class="challenge-text"></div>
+        <div id="card-content" class="challenge-info"></div>
+    </div>
+
+    <div class="bottom-description">
+        <h3>על דף היסטוריית העונות שלנו</h3>
+        <p>
+            דף זה מרכז את כל שנות הפעילות של קבוצת <strong>Team Streak #7067</strong> מאז הקמתה בשנת 2018. 
+            עבורנו, כל שנה המוצגת כאן היא לא רק תחרות, אלא תהליך למידה הנדסי מורכב. 
+            מכאן תוכלו לראות איך התפתחנו מרמת התכנון, דרך המכניקה ועד לביצועים על המגרש. 
+            <br><br>
+            אנחנו משתמשים בנתונים הללו כדי ללמוד מטעויות העבר, לשמר ידע מקצועי ולהציג לדורות הבאים של הקבוצה את המורשת שבנינו. 
+            הרובוטים שאתם רואים כאן הם תוצאה של אלפי שעות עבודה בסדנה, תכנות לילות לבנים ושיתוף פעולה בין כלל מחלקות הקבוצה.
+        </p>
     </div>
 
     <script>
@@ -121,7 +162,7 @@
             const card = document.getElementById('info-card');
 
             try {
-                // טעינת הקובץ
+                // טעינת הקובץ עם מניעת Cache
                 const response = await fetch('seasons.xlsx?v=' + Date.now());
                 const arrayBuffer = await response.arrayBuffer();
                 const data = new Uint8Array(arrayBuffer);
@@ -141,14 +182,15 @@
                         
                         document.getElementById('card-title').innerText = "עונת " + item.Year;
                         document.getElementById('card-content').innerHTML = `
-                            <p><strong>🎯 האתגר:</strong> ${item.Challenge || 'מעדכנים נתונים...'}</p>
-                            <p><strong>🤖 הרובוט:</strong> ${item.Robot || 'מעדכנים נתונים...'}</p>
-                            ${item.Video ? `<a href="${item.Video}" target="_blank" class="video-btn">🎬 לצפייה באתגר</a>` : ''}
+                            <p><strong>🎯 האתגר:</strong><br>${item.Challenge || 'מעדכנים נתונים...'}</p>
+                            <p><strong>🤖 הרובוט:</strong><br>${item.Robot || 'מעדכנים נתונים...'}</p>
+                            ${item.Video ? `<a href="${item.Video}" target="_blank" class="video-btn">🎬 לצפייה בסרטון האתגר</a>` : ''}
                         `;
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     };
                     selector.appendChild(btn);
                 });
-            } catch (e) { console.error("Error:", e); }
+            } catch (e) { console.error("Error loading seasons:", e); }
         }
         window.onload = init;
     </script>
